@@ -8,5 +8,8 @@ namespace ASPNETCoreWebAPI.Db
 
         // Students Table
         public DbSet<Student> Students => Set<Student>();
+
+        // Users Table
+        public DbSet<User> Users => Set<User>();
     }
 }
