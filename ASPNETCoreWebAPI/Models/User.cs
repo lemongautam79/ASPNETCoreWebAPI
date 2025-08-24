@@ -49,9 +49,8 @@ namespace ASPNETCoreWebAPI.Models
         // 1 to 1 with User Profile
         public Profile? Profile { get; set; }
 
-        // 1 to M (1 User: Multiple Posts)
-        public int? PostId { get; set; }
-        public Post? Post { get; set; }
+        // **1-to-Many: One User can have many Posts**
+        public List<Post>? Posts { get; set; }
 
         // M to N (Many User has many groups)
 

@@ -16,6 +16,9 @@ namespace ASPNETCoreWebAPI.Models
         public DateTime UpdatedAt
         { get; set; } = DateTime.UtcNow;
 
-        
+        // **Many-to-1: Each Comment has one Post**
+        [Required]
+        public int PostId { get; set; }
+        public Post? Post { get; set; }
     }
 }
