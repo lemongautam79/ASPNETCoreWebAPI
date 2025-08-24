@@ -14,7 +14,7 @@ namespace ASPNETCoreWebAPI.Services
     public class AuthService(ASPNETCoreWebAPIDbContext context, IConfiguration configuration) : IAuthService
     {
         // User Login
-        public async Task<TokenResponseDto?> LoginAsync(UserDto request)
+        public async Task<TokenResponseDto?> LoginAsync(LoginDto request)
         {
             var user = await context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
 
@@ -39,17 +39,29 @@ namespace ASPNETCoreWebAPI.Services
         // Register a new User
         public async Task<User?> RegisterAsync(UserDto request)
         {
-            if(await context.Users.AnyAsync(u=>u.Email == request.Email))
+            // Check if email already exists
+            if (await context.Users.AnyAsync(u => u.Email == request.Email))
             {
-                return null;
+                return null; // or throw a custom exception
             }
 
-            var user = new User();
-            var hashedPassword = new PasswordHasher<User>().HashPassword(user, request.Password);
+            var user = new User
+            {
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Email = request.Email,
+                Phone = request.Phone,
+                Role = request.Role, // defaults to User if not provided
+                IsActive = true,     // Activate by default (or keep false if you want email verification flow)
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
 
-            user.Email = request.Email;
-            user.PasswordHash = hashedPassword;
+            // Hash password
+            var passwordHasher = new PasswordHasher<User>();
+            user.PasswordHash = passwordHasher.HashPassword(user, request.Password);
 
+            // Save to database
             context.Users.Add(user);
             await context.SaveChangesAsync();
 
@@ -110,7 +122,7 @@ namespace ASPNETCoreWebAPI.Services
             };
 
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(configuration.GetValue<string>("AppSettings:Issuer")!));
+                Encoding.UTF8.GetBytes(configuration.GetValue<string>("AppSettings:Token")!));
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
 

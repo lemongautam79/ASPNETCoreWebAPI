@@ -26,7 +26,7 @@ namespace ASPNETCoreWebAPI.Controllers
 
         // Login User
         [HttpPost("login")]
-        public async Task<ActionResult<TokenResponseDto>> Login(UserDto request)
+        public async Task<ActionResult<TokenResponseDto>> Login(LoginDto request)
         {
             var result = await authService.LoginAsync(request);
             if (result is null)
