@@ -18,8 +18,13 @@ namespace ASPNETCoreWebAPI.Models
 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        // 1 To M Comment (1 Post: Multiple Comments)
-        public int? CommentId { get; set; }
-        public Comment? Comment { get; set; }
+        // 1-to-Many for Comments
+        public List<Comment>? Comments { get; set; }
+
+
+        // **Many-to-1: Each Post has one User**
+        [Required]
+        public Guid UserId { get; set; }       // FK to User
+        public User? User { get; set; }
     }
 }
