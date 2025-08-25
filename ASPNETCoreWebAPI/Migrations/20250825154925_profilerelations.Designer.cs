@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ASPNETCoreWebAPI.Migrations
 {
     [DbContext(typeof(ASPNETCoreWebAPIDbContext))]
-    [Migration("20250823153526_allrelationships")]
-    partial class allrelationships
+    [Migration("20250825154925_profilerelations")]
+    partial class profilerelations
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -40,12 +40,17 @@ namespace ASPNETCoreWebAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Comment");
+                    b.HasIndex("PostId");
+
+                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("ASPNETCoreWebAPI.Models.Group", b =>
@@ -79,9 +84,6 @@ namespace ASPNETCoreWebAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CommentId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -96,11 +98,14 @@ namespace ASPNETCoreWebAPI.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("CommentId");
+                    b.HasIndex("UserId");
 
-                    b.ToTable("Post");
+                    b.ToTable("Posts");
                 });
 
             modelBuilder.Entity("ASPNETCoreWebAPI.Models.Profile", b =>
@@ -120,10 +125,13 @@ namespace ASPNETCoreWebAPI.Migrations
                     b.Property<int>("Gender")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("Profile");
                 });
@@ -210,12 +218,6 @@ namespace ASPNETCoreWebAPI.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
-                    b.Property<int?>("PostId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ProfileId")
-                        .HasColumnType("int");
-
                     b.Property<string>("RefreshToken")
                         .HasColumnType("nvarchar(max)");
 
@@ -229,10 +231,6 @@ namespace ASPNETCoreWebAPI.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("PostId");
-
-                    b.HasIndex("ProfileId");
 
                     b.ToTable("Users");
                 });
@@ -252,28 +250,37 @@ namespace ASPNETCoreWebAPI.Migrations
                     b.ToTable("GroupUser");
                 });
 
-            modelBuilder.Entity("ASPNETCoreWebAPI.Models.Post", b =>
-                {
-                    b.HasOne("ASPNETCoreWebAPI.Models.Comment", "Comment")
-                        .WithMany()
-                        .HasForeignKey("CommentId");
-
-                    b.Navigation("Comment");
-                });
-
-            modelBuilder.Entity("ASPNETCoreWebAPI.Models.User", b =>
+            modelBuilder.Entity("ASPNETCoreWebAPI.Models.Comment", b =>
                 {
                     b.HasOne("ASPNETCoreWebAPI.Models.Post", "Post")
-                        .WithMany()
-                        .HasForeignKey("PostId");
-
-                    b.HasOne("ASPNETCoreWebAPI.Models.Profile", "Profile")
-                        .WithMany()
-                        .HasForeignKey("ProfileId");
+                        .WithMany("Comments")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Post");
+                });
 
-                    b.Navigation("Profile");
+            modelBuilder.Entity("ASPNETCoreWebAPI.Models.Post", b =>
+                {
+                    b.HasOne("ASPNETCoreWebAPI.Models.User", "User")
+                        .WithMany("Posts")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ASPNETCoreWebAPI.Models.Profile", b =>
+                {
+                    b.HasOne("ASPNETCoreWebAPI.Models.User", "User")
+                        .WithOne("Profile")
+                        .HasForeignKey("ASPNETCoreWebAPI.Models.Profile", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("GroupUser", b =>
@@ -289,6 +296,18 @@ namespace ASPNETCoreWebAPI.Migrations
                         .HasForeignKey("UsersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ASPNETCoreWebAPI.Models.Post", b =>
+                {
+                    b.Navigation("Comments");
+                });
+
+            modelBuilder.Entity("ASPNETCoreWebAPI.Models.User", b =>
+                {
+                    b.Navigation("Posts");
+
+                    b.Navigation("Profile");
                 });
 #pragma warning restore 612, 618
         }

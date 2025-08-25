@@ -100,7 +100,13 @@ namespace ASPNETCoreWebAPI.Services
                     Title = p.Title,
                     Description = p.Description,
                     CreatedAt = p.CreatedAt,
-                    UpdatedAt = p.UpdatedAt
+                    UpdatedAt = p.UpdatedAt,
+                    Comments = p.Comments.Select(c => new CommentResponseDto
+                    {
+                        Id = c.Id,
+                        Description = c.Description,
+                        CreatedAt = c.CreatedAt,
+                    }).ToList()
                 })
                 .ToListAsync();
 

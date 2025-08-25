@@ -1,19 +1,13 @@
-﻿namespace ASPNETCoreWebAPI.Models
+﻿using ASPNETCoreWebAPI.Models;
+
+namespace ASPNETCoreWebAPI.Dtos
 {
-    public class Profile
+    public class ProfileResponseDto
     {
-
         public int Id { get; set; }
-
         public DateOnly? Dob { get; set; }
-
         public Gender Gender { get; set; }
-
         public string? Avatar_URL { get; set; }
-
-        // 1 to 1 with User
         public Guid UserId { get; set; }
-
-        public User User { get; set; } = null!;
     }
 }

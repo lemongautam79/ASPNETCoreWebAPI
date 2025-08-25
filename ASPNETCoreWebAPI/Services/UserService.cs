@@ -27,8 +27,6 @@ namespace ASPNETCoreWebAPI.Services
         public async Task<(IEnumerable<UserResponseDto> Users, int TotalCount)> GetAllAsync(UserQueryDto query)
         {
             var usersQuery = _context.Users.AsQueryable();
-
-            // 🔍 Filtering: Search by FirstName, LastName, or Email
             if (!string.IsNullOrEmpty(query.Search))
             {
                 var search = query.Search.ToLower();
@@ -37,23 +35,15 @@ namespace ASPNETCoreWebAPI.Services
                     u.LastName.ToLower().Contains(search) ||
                     u.Email.ToLower().Contains(search));
             }
-
-            // ✅ Filtering: By Role
             if (query.Role.HasValue)
             {
                 usersQuery = usersQuery.Where(u => u.Role == query.Role.Value);
             }
-
-            // ✅ Filtering: By IsActive status
             if (query.IsActive.HasValue)
             {
                 usersQuery = usersQuery.Where(u => u.IsActive == query.IsActive.Value);
             }
-
-            // total count before pagination
             var totalCount = await usersQuery.CountAsync();
-
-            // 📄 Pagination
             if (query.Page > 0 && query.Limit > 0)
             {
                 usersQuery = usersQuery
@@ -61,7 +51,6 @@ namespace ASPNETCoreWebAPI.Services
                     .Skip((query.Page - 1) * query.Limit)
                     .Take(query.Limit);
             }
-
             var users = await usersQuery
                 .Select(u => new UserResponseDto
                 {
@@ -72,14 +61,21 @@ namespace ASPNETCoreWebAPI.Services
                     Phone = u.Phone,
                     Role = u.Role,
                     IsActive = u.IsActive,
-                    CreatedAt = u.CreatedAt
+                    CreatedAt = u.CreatedAt,
+                    Posts = u.Posts.Select(u=>
+                    new PostResponseDto
+                    {
+                        Id = u.Id,
+                        Title = u.Title,
+                        Description = u.Description,
+                        CreatedAt = u.CreatedAt,
+                        UpdatedAt = u.UpdatedAt,
+                    }).ToList()
                 })
                 .ToListAsync();
 
             return (users, totalCount);
         }
-
-
         public async Task<UserResponseDto> GetByIdAsync(Guid id)
         {
             var user = await _context.Users.FindAsync(id);

@@ -122,10 +122,13 @@ namespace ASPNETCoreWebAPI.Migrations
                     b.Property<int>("Gender")
                         .HasColumnType("int");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("Profile");
                 });
@@ -212,9 +215,6 @@ namespace ASPNETCoreWebAPI.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
-                    b.Property<int?>("ProfileId")
-                        .HasColumnType("int");
-
                     b.Property<string>("RefreshToken")
                         .HasColumnType("nvarchar(max)");
 
@@ -228,8 +228,6 @@ namespace ASPNETCoreWebAPI.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ProfileId");
 
                     b.ToTable("Users");
                 });
@@ -271,13 +269,15 @@ namespace ASPNETCoreWebAPI.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ASPNETCoreWebAPI.Models.User", b =>
+            modelBuilder.Entity("ASPNETCoreWebAPI.Models.Profile", b =>
                 {
-                    b.HasOne("ASPNETCoreWebAPI.Models.Profile", "Profile")
-                        .WithMany()
-                        .HasForeignKey("ProfileId");
+                    b.HasOne("ASPNETCoreWebAPI.Models.User", "User")
+                        .WithOne("Profile")
+                        .HasForeignKey("ASPNETCoreWebAPI.Models.Profile", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Profile");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("GroupUser", b =>
@@ -303,6 +303,8 @@ namespace ASPNETCoreWebAPI.Migrations
             modelBuilder.Entity("ASPNETCoreWebAPI.Models.User", b =>
                 {
                     b.Navigation("Posts");
+
+                    b.Navigation("Profile");
                 });
 #pragma warning restore 612, 618
         }
