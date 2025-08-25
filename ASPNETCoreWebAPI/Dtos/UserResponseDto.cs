@@ -14,5 +14,7 @@ namespace ASPNETCoreWebAPI.Dtos
         public DateTime CreatedAt { get; set; }
 
         public DateTime UpdatedAt { get; set; }
+
+        public List<PostResponseDto> Posts { get; set; } = new();
     }
 }

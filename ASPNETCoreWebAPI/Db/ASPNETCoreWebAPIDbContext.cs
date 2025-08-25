@@ -15,5 +15,7 @@ namespace ASPNETCoreWebAPI.Db
         public DbSet<Post> Posts => Set<Post>();
 
         public DbSet<Comment> Comments => Set<Comment>();
+
+        public DbSet<Profile> Profile => Set<Profile>();
     }
 }
